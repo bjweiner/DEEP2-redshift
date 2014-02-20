@@ -1,0 +1,124 @@
+
+# This Makefile should work to compile some of my programs 
+# (here, linefit) on a generic machine.  You will need the
+# pgplot, cfitsio, and X11 libraries, in the files libpgplot.a,
+# libcfitsio.a, libX11.a.  If you don't have these in the
+# default locations, you'll get undefined reference errors,
+# edit the "Custom library locations" below.
+
+# The syntax for linking pgplot under OS X is kind of complicated,
+# look at the scisoft example below and hope it works.
+
+# Once you have it finding the libraries, do
+#    make -f Makefile.linefit libraries
+# this will compile my utility routines and the Num. Rec. library.
+# You only need to do this once.  Then do
+#    make -f Makefile.linefit linefit
+# to compile the linefit executable. 
+
+# may need to change this if you don't have f77 pointing to g77
+# FC = f77
+# FC = g77
+
+
+#echo $(OSTYPE)
+
+# Attempt to guess library locations based on OS.
+# The linux locations can vary, and the OS X locations assume
+# you have Scisoft http://scisoftosx.dyndns.org installed.
+# If your libraries are somewhere else, skip down to the 
+# **** Custom library locations **** and edit the locations.
+
+ifeq ($(OSTYPE),linux)
+# Typical linux locations
+  FITSIO = /usr/lib/libcfitsio.a
+  PGPLOT = /usr/local/lib/pgplot/libpgplot.a /usr/X11R6/lib/libX11.a -lpng
+#  echo "Using Linux library locations for pgplot and cfitsio"
+else 
+  ifeq ($(OSTYPE),darwin)
+# for Mac with Scisoft installed, http://scisoftosx.dyndns.org
+#
+#    PGPLOT = /scisoft/lib/libpgplot.a /usr/X11R6/lib/libX11.a  /scisoft/lib/libpng.a 
+# Order is important here!  libpgplot.a has to come before some other
+# stuff so it gets statically loaded rather than dynamically, apparently.
+# This seems to be OS X being too smart for its own good.
+    FITSIO = /scisoft/lib/libcfitsio.a
+    PGPLOT = /scisoft/lib/libpgplot.a -L/usr/X11R6/lib -lX11 -Wl,-framework -Wl,Foundation -L/scisoft/lib -lpng -laquaterm
+#    echo "Using Darwin (OSX) Scisoft library locations for pgplot and cfitsio"
+  else 
+    ifeq ($(OSTYPE),solaris)
+#   Typical solaris locations.  The location for cfitsio is probably wrong.
+      FITSIO = /opt/cfitsio/libcfitsio.a
+      PGPLOT = /opt/pgplot/libpgplot.a -lX11 -lsocket -lnsl
+#      echo "Using Solaris library locations for pgplot and cfitsio"
+    endif
+  endif
+endif
+
+# ***** Custom library locations *****
+#
+# These are if you have the libraries installed in a subdirectory lib/
+# beneath the programs or under your home directory
+#
+#PGPLOT = lib/pgplot/libpgplot.a /usr/X11R6/lib/libX11.a -lpng
+#FITSIO = lib/cfitsio/libcfitsio.a
+#
+LIBX11 = $(HOME)/lib/X11/libX11.a
+PGPLOT = $(HOME)/lib/pgplot/libpgplot.a $(LIBX11) -lpng
+FITSIO = $(HOME)/lib/cfitsio/libcfitsio.a
+#echo "Overriding default library locations"
+
+# Other libraries you need - utility routines I wrote, and NR library
+
+NUMREC = lib/numrec/numrec2.a
+FITSIOWRAP = lib/bjw/fitsiowrap.o $(FITSIO)
+MRQFIT = lib/bjw/mrqfit.o
+
+BIWGT = lib/bjw/biwgt.o
+FITGAUS = lib/bjw/fitgaus2.o
+FITDOUB = lib/bjw/fitdoublet.o
+FITDOUB2 = lib/bjw/fitdoublet2a.o
+
+# all the executable files
+# To make linefit run on generic FITS image input spectra, you
+# need to edit linefit.f to use read1dspec_generic() instead
+# of read1dspec().  Then rename the executable if wanted.
+
+#EXECFILES = linefit linefit_generic
+EXECFILES = linefit
+
+SRC = linefit.f linefit.m \
+       read1dspec.f read1dspec_generic.f readfield.f calcsnrmed.f findends.f
+
+OBJS = linefit.o \
+       read1dspec.o read1dspec_generic.o readfield.o calcsnrmed.o findends.o
+
+linefit: $(OBJS)
+	$(FC) -O -o linefit $(OBJS) $(FITGAUS) $(PGPLOT) $(FITSIOWRAP) \
+  $(BIWGT) $(MRQFIT) $(FITDOUB) $(FITDOUB2) $(NUMREC)
+
+lib_bjw:
+	cd lib/bjw; \
+	f77 -c biwgt.f fitgaus2.f fitdoublet.f fitdoublet2a.f fitsiowrap.f \
+	  mrqfit.f
+	@/bin/echo "Note: The warnings when compiling mrqfit.f are normal." 
+
+numrec:
+	cd lib/numrec ; \
+        f77 -c *.f ; \
+        ar -rcv numrec2.a *.o
+        
+clean:
+	-rm $(EXECFILES) $(OBJS)
+
+clean_libraries:
+	cd lib/bjw ; \
+	rm *.o
+
+# Theoretically this could also compile pgplot and cfitsio libraries 
+# in the subdirectories
+#
+libraries: lib_bjw numrec
+
+all: $(EXECFILES)
+
