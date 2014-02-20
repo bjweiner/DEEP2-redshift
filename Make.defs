@@ -1,0 +1,32 @@
+
+IRAFDIR = /usr/local/scisoft/packages/iraf/
+
+IMFORT = $(IRAFDIR)/irafbin/bin.macintel/libimfort.a  \
+        $(IRAFDIR)/irafbin/bin.macintel/libsys.a      \
+        $(IRAFDIR)/irafbin/bin.macintel/libvops.a     \
+        $(IRAFDIR)/unix/bin.macintel/libos.a  
+
+#        $(IRAFDIR)/unix/bin.redhat/libos.a  \
+#	-lsocket -lnsl
+
+#PGPLOT = -lpgplot -lX11
+#PGPLOT = /usr/local/pgplot/libpgplot.a /usr/X11R6/lib/libX11.a
+#PGPLOT = /usr/lib/libpgplot.a /usr/X11R6/lib/libX11.a -lpng
+#PGPLOT = /usr/lib/libpgplot.a -lX11 -lpng
+#PGPLOT = /usr/local/lib/pgplot/libpgplot.a /usr/X11R6/lib/libX11.a -lpng
+#PGPLOT = -lpgplot -lX11 -lpng
+PGPLOT = /usr/local/lib/pgplot/libpgplot.a /sw/lib/libpng.a /usr/X11/lib/libX11.dylib
+
+NUMREC = $(HOME)/recipes_f/recipes/numrec2.a
+
+MRQFIT = $(HOME)/recipes_f/recipes_modif/mrqfit.o
+
+BIWGT = $(HOME)/programs/statprogs/biwgt.o
+
+#FITSIO = -lcfitsio
+#FITSIO = /usr/local/scisoft/lib/libcfitsio.a
+FITSIO = /sw/lib/libcfitsio.a
+FITSIOWRAP = $(HOME)/programs/util/fitsiowrap.o $(FITSIO)
+
+FC = g77
+
