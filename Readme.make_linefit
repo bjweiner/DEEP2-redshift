@@ -1,0 +1,66 @@
+
+To make a portable version of linefit:
+
+# This is just stuff I need to know about where the subroutines live
+Copy subroutines from various directories to be under a common dir.
+
+mkdir ~/linefit
+mkdir -p ~/linefit/lib/bjw
+mkdir ~/linefit/lib/numrec
+
+cp Makefile.linefit linelist linefit.f linefit.m \
+   read1dspec.f read1dspec_generic.f readfield.f calcsnrmed.f findends.f \
+   pcredshift.h specarray.h Readme.make_linefit ~/linefit
+
+cp ~/recipes_f/recipes_modif/mrqfit.f ~/linefit/lib/bjw
+cd ~/programs/statprogs
+cp biwgt.f fitgaus2.f fitdoublet.f fitdoublet2a.f ~/linefit/lib/bjw
+cd ../util
+cp fitsiowrap.f nmax.f ~/linefit/lib/bjw
+cd ~/recipes_f/recipes 
+cp *.f ~/linefit/lib/numrec
+
+cd ~
+mv linefit/lib/numrec ~/numrec_tmp
+tar zcvf linefit.tar.gz linefit
+mv ~/numrec_tmp linefit/lib/numrec
+tar zcvf linefit_numlib.tar.gz linefit/lib/numrec
+
+
+----------
+
+To compile it:
+
+Look at Makefile.linefit, you may need to edit it so that it
+can find the libpgplot.a, libcfitsio.a, and libX11.a libraries
+on your system.
+
+cd ~/linefit
+make -f Makefile.linefit libraries
+# You may see some warning messages, press ahead anyway
+#
+make -f Makefile.linefit linefit
+
+To run it:
+
+linefit
+<file w/linelist> - list of rest wavelengths to fit.  Use 3728.0 for [O II]
+<file w/ object numbers and redshifts>  - a file w/two columns: objno z
+<file w/ spec1d filenames>
+<instr. resolution sigma in A>  - use 0.56 A for DEEP2, 1.4 A for TKRS
+
+the include file "linelist" has a pretty long list of wavelengths.
+
+for example:
+
+% linefit
+linelist
+list.objno_z
+list.spec1d
+0.56
+
+It will spit out a bunch of output parameter files and some
+plots in gif form.  See 
+http://mingus.as.arizona.edu/~bjw/deep/linefit/Readme.linefit.html
+for documentation.
+
