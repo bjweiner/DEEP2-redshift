@@ -18,6 +18,7 @@ IMFORT = $(IRAFDIR)/irafbin/bin.macintel/libimfort.a  \
 PGPLOT = /usr/local/lib/pgplot/libpgplot.a /sw/lib/libpng.a /usr/X11/lib/libX11.dylib
 
 NUMREC = $(HOME)/recipes_f/recipes/numrec2.a
+NUMRECGFORT = $(HOME)/recipes_f/recipes/numrec2_gfortran.a
 
 MRQFIT = $(HOME)/recipes_f/recipes_modif/mrqfit.o
 
