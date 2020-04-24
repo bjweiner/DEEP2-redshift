@@ -1,0 +1,28 @@
+test NUMREC deps by commenting it out in makefile and compiling.
+
+fitz3:
+
+svdsubs.f:
+  svdfit (as bigsvdfit), subroutines
+
+contsubleg.f:
+  incorporated fleg for Legendre polynomials, could substitute
+  or use contsubpoly
+
+medsmooth.f:
+  uses select for median
+
+contsubmed:
+  uses selip for median
+
+findmultmin:
+  incorporated piksr2int for 2-array sort of minima
+
+zchoose4:
+
+zchoose4.f:
+  subroutine smootharr uses select 
+
+medsmooth.f:
+  uses select for median
+
